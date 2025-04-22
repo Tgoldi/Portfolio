@@ -389,6 +389,7 @@ const SkillCard: React.FC<SkillCardProps> = memo(({
         sizeClasses[size],
         glow && "hover:shadow-crimson/20"
       )}
+      role="listitem"
     >
       <img 
         src={skill.icon} 
@@ -1374,27 +1375,15 @@ const HomePage: React.FC = () => {
               <h3 className="text-xl font-semibold mb-4 text-center">
                 <span className="text-crimson">Front-End</span> Technologies
               </h3>
-              <div className="flex flex-wrap justify-center gap-4">
-                {[
-                  { name: "React", icon: "/tech/react.svg" },
-                  { name: "JavaScript", icon: "/tech/javascript.svg" },
-                  { name: "HTML", icon: "/tech/html.svg" },
-                  { name: "CSS", icon: "/tech/css.svg" },
-                  { name: "Material-UI", icon: "/tech/material-ui.svg" },
-                  { name: "TypeScript", icon: "/tech/typescript.svg" },
-                  { name: "Tailwind CSS", icon: "/tech/tailwind.svg" },
-                  { name: "Bootstrap", icon: "/tech/bootstrap.svg" },
-                  { name: "Shadcn", icon: "/tech/shadcn.svg" },
-                  { name: "Responsive Design", icon: "/tech/responsive.svg" },
-                ].map((tech, idx) => (
-                  <TechPill 
-                    key={tech.name} 
-                    tech={tech.name} 
-                    custom={idx} 
-                    variants={techIconVariants} 
-                  />
+              <div 
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6" 
+                role="list"
+                aria-label="Frontend skills"
+              >
+                {techStackSkills.frontend.map((skill, index) => (
+                  <SkillCard key={`frontend-${index}`} skill={skill} />
                 ))}
-                    </div>
+              </div>
             </div>
             
             {/* BACKEND SECTION */}

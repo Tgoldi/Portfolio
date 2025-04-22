@@ -5,6 +5,14 @@ import { ThemeToggle } from "../theme-toggle";
 import { Menu, X, Github } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { useAccessibility } from "@/App";
+import { Toggle } from "@/components/ui/toggle";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { 
+  Settings, 
+  EyeIcon, 
+  Activity 
+} from "lucide-react";
 
 /**
  * Header component props
@@ -168,6 +176,78 @@ const Header = ({ scrolled }: HeaderProps) => {
     }
   };
 
+  // Skip to content link for keyboard users
+  const SkipToContent = () => (
+    <a 
+      href="#main-content" 
+      className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:p-4 focus:bg-background focus:text-foreground focus:outline-none focus:ring-2 focus:ring-crimson"
+    >
+      Skip to content
+    </a>
+  );
+
+  // Add Accessibility Menu component
+  const AccessibilityMenu = () => {
+    const { 
+      reducedMotion, 
+      toggleReducedMotion, 
+      highContrast, 
+      toggleHighContrast 
+    } = useAccessibility();
+
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            aria-label="Accessibility Options"
+            className="rounded-full mr-2"
+          >
+            <Settings className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-56 p-4">
+          <div className="space-y-3">
+            <h3 className="font-medium text-sm">Accessibility Settings</h3>
+            
+            <div className="flex items-center justify-between">
+              <label 
+                htmlFor="high-contrast" 
+                className="text-sm flex items-center gap-2"
+              >
+                <EyeIcon className="h-4 w-4" />
+                High Contrast
+              </label>
+              <Toggle 
+                id="high-contrast"
+                aria-label="Toggle high contrast mode"
+                pressed={highContrast}
+                onPressedChange={toggleHighContrast}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <label 
+                htmlFor="reduced-motion" 
+                className="text-sm flex items-center gap-2"
+              >
+                <Activity className="h-4 w-4" />
+                Reduced Motion
+              </label>
+              <Toggle 
+                id="reduced-motion"
+                aria-label="Toggle reduced motion mode"
+                pressed={reducedMotion}
+                onPressedChange={toggleReducedMotion}
+              />
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+    );
+  };
+
   return (
     <header
       className={cn(
@@ -177,6 +257,7 @@ const Header = ({ scrolled }: HeaderProps) => {
           : "bg-transparent"
       )}
     >
+      <SkipToContent />
       <div className="container-custom flex h-16 items-center justify-between">
         {/* Logo */}
         <motion.div 
@@ -222,7 +303,10 @@ const Header = ({ scrolled }: HeaderProps) => {
             animate="visible"
             variants={navItemVariants}
           >
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <AccessibilityMenu />
+              <ThemeToggle />
+            </div>
           </motion.div>
           
           <motion.div

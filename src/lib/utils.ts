@@ -303,3 +303,20 @@ export function debounce<T extends (...args: unknown[]) => void>(
     }, delay);
   };
 }
+
+/**
+ * Helper function for keyboard navigation on interactive elements
+ * Use this for non-button/link elements that should be keyboard interactive
+ * 
+ * @param callback - Function to call when element is activated
+ * @returns - Event handler for onKeyDown
+ */
+export function handleKeyboardInteraction(callback: () => void) {
+  return (e: React.KeyboardEvent) => {
+    // Trigger callback on Enter or Space key
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      callback();
+    }
+  };
+}

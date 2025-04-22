@@ -23,7 +23,7 @@ A modern, high-performance portfolio website showcasing my skills, projects, and
 
 ```bash
 # Clone the repository
-git clone https://github.com/tomergoldst/portfolio.git
+git clone https://github.com/Tgoldi/portfolio.git
 
 # Navigate to the project directory
 cd portfolio

@@ -21,7 +21,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/theme-provider";
-import { memo, lazy, Suspense, useEffect, useState } from "react";
+import { memo, lazy, Suspense, useEffect, useState, createContext, useContext } from "react";
 import RootLayout from "./components/layout/RootLayout";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { SEOProvider } from "./providers/SEOProvider";
@@ -46,6 +46,85 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Create a context for accessibility settings
+export const AccessibilityContext = createContext<{
+  reducedMotion: boolean;
+  toggleReducedMotion: () => void;
+  highContrast: boolean;
+  toggleHighContrast: () => void;
+  announce: (message: string, assertive?: boolean) => void;
+}>({
+  reducedMotion: false,
+  toggleReducedMotion: () => {},
+  highContrast: false,
+  toggleHighContrast: () => {},
+  announce: () => {},
+});
+
+// Create a provider for the accessibility settings
+export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Check for reduced motion preference
+  const [reducedMotion, setReducedMotion] = useState(
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+  
+  // Check for high contrast preference
+  const [highContrast, setHighContrast] = useState(
+    window.matchMedia("(prefers-contrast: more)").matches
+  );
+  
+  // Toggle functions
+  const toggleReducedMotion = () => setReducedMotion(prev => !prev);
+  const toggleHighContrast = () => setHighContrast(prev => !prev);
+  
+  // Screen reader announcements
+  const announce = (message: string, assertive = false) => {
+    const announcer = document.getElementById(
+      assertive ? "assertive-announcer" : "polite-announcer"
+    );
+    
+    if (announcer) {
+      announcer.textContent = message;
+      
+      // Clear the announcement after 3 seconds
+      setTimeout(() => {
+        announcer.textContent = "";
+      }, 3000);
+    }
+  };
+  
+  return (
+    <AccessibilityContext.Provider 
+      value={{ 
+        reducedMotion, 
+        toggleReducedMotion, 
+        highContrast, 
+        toggleHighContrast,
+        announce
+      }}
+    >
+      {/* Screen reader announcement containers */}
+      <div 
+        id="assertive-announcer" 
+        role="alert" 
+        aria-live="assertive" 
+        className="sr-only"
+      ></div>
+      <div 
+        id="polite-announcer" 
+        role="status" 
+        aria-live="polite" 
+        className="sr-only"
+      ></div>
+      
+      {children}
+    </AccessibilityContext.Provider>
+  );
+};
+
+// Custom hook for using accessibility settings
+export const useAccessibility = () => useContext(AccessibilityContext);
 
 /**
  * Error logging function for production monitoring
@@ -146,24 +225,26 @@ const App = () => {
       <QueryClientProvider client={queryClient}>
         <SEOProvider>
           <ThemeProvider defaultTheme="dark">
-            <TooltipProvider>
-              <LoadingScreen isLoading={isLoading} />
-              <Toaster />
-              <Sonner />
-              <BrowserRouter>
-                <Suspense fallback={<LoadingScreen isLoading={true} />}>
-                  <Routes>
-                    <Route path="/" element={<RootLayout />}>
-                      <Route index element={<HomePage />} />
-                      <Route path="/projects" element={<ProjectsPage />} />
-                      <Route path="/experience" element={<ExperiencePage />} />
-                      <Route path="/contact" element={<ContactPage />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Route>
-                  </Routes>
-                </Suspense>
-              </BrowserRouter>
-            </TooltipProvider>
+            <AccessibilityProvider>
+              <TooltipProvider>
+                <LoadingScreen isLoading={isLoading} />
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                  <Suspense fallback={<LoadingScreen isLoading={true} />}>
+                    <Routes>
+                      <Route path="/" element={<RootLayout />}>
+                        <Route index element={<HomePage />} />
+                        <Route path="/projects" element={<ProjectsPage />} />
+                        <Route path="/experience" element={<ExperiencePage />} />
+                        <Route path="/contact" element={<ContactPage />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Route>
+                    </Routes>
+                  </Suspense>
+                </BrowserRouter>
+              </TooltipProvider>
+            </AccessibilityProvider>
           </ThemeProvider>
         </SEOProvider>
       </QueryClientProvider>

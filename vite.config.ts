@@ -42,7 +42,7 @@ export default defineConfig(({ mode }) => ({
     // Enable source map for production builds
     sourcemap: false,
     // Minify options
-    minify: 'esbuild',
+    minify: 'terser',
     terserOptions: {
       compress: {
         drop_console: true,
