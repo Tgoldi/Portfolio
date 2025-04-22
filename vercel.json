@@ -1,8 +1,8 @@
 {
-    "buildCommand": "npm run build",
+    "buildCommand": "NODE_OPTIONS=--max_old_space_size=4096 npm run build",
     "cleanUrls": true,
     "framework": "vite",
-    "installCommand": "npm install --no-optional",
+    "installCommand": "npm install --no-optional --legacy-peer-deps",
     "rewrites": [
         {
             "source": "/(.*)",
@@ -55,5 +55,10 @@
                 }
             ]
         }
-    ]
+    ],
+    "build": {
+        "env": {
+            "NODE_OPTIONS": "--max_old_space_size=4096"
+        }
+    }
 }

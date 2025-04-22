@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "npx rollup 2>/dev/null || npm i rollup",
-    "build": "vite build",
+    "prebuild": "npx rollup 2>/dev/null || npm i rollup && npx @swc/core -v || npm i @swc/core",
+    "build": "vite build --force",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -69,6 +69,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
+    "@swc/core": "^1.3.95",
     "@tailwindcss/typography": "^0.5.15",
     "@types/node": "^22.5.5",
     "@types/react": "^18.3.20",
@@ -90,6 +91,7 @@
     "webpack-bundle-analyzer": "^4.10.0"
   },
   "overrides": {
-    "rollup": "^4.9.0"
+    "rollup": "^4.9.0",
+    "@swc/core": "^1.3.95"
   }
 }
