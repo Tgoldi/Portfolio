@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "npx rollup 2>/dev/null || npm i rollup",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
@@ -79,12 +80,16 @@
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
     "postcss": "^8.4.47",
+    "rollup": "^4.9.0",
     "rollup-plugin-visualizer": "^5.14.0",
     "tailwindcss": "^3.4.17",
     "terser": "^5.39.0",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1",
-    "webpack-bundle-analyzer": "^4.10.2"
+    "webpack-bundle-analyzer": "^4.10.0"
+  },
+  "overrides": {
+    "rollup": "^4.9.0"
   }
 }
