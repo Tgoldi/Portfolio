@@ -1,0 +1,12 @@
+Replace lines 1090-1098 in src/pages/HomePage.tsx with the correct structure shown below:
+
+                        </div>
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+

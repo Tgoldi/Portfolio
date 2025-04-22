@@ -1,0 +1,222 @@
+/**
+ * Global CSS Styles
+ * Main styling for the portfolio website
+ */
+
+/* Import fonts with display=swap for better performance */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * CSS Variables
+ * Theme colors and design tokens
+ */
+@layer base {
+  :root {
+    /* Main colors */
+    --background: 0 0% 98%;
+    --foreground: 240 10% 3.9%;
+    
+    /* Component colors */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Form and border colors */
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    
+    /* Design tokens */
+    --radius: 0.75rem;
+
+    /* Code block colors */
+    --code: 0 0% 96%;
+    --code-foreground: 240 5.9% 10%;
+
+    /* Brand colors */
+    --crimson: 350 89% 45%;
+    --crimson-foreground: 0 0% 98%;
+  }
+
+  /* Dark theme overrides */
+  .dark {
+    /* Main colors */
+    --background: 220 10% 4%;
+    --foreground: 0 0% 98%;
+    
+    /* Component colors */
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    
+    --secondary: 240 3.7% 12%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    
+    /* Form and border colors */
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+
+    /* Code block colors */
+    --code: 240 3.7% 10%;
+    --code-foreground: 0 0% 86%;
+
+    /* Brand colors */
+    --crimson: 350 80% 56%;
+    --crimson-foreground: 0 0% 98%;
+  }
+}
+
+/**
+ * Base styles
+ * Foundational styling for HTML elements
+ */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    @apply scroll-smooth;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased min-h-screen;
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Typography */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans font-bold tracking-tight;
+  }
+  
+  h1 {
+    @apply text-4xl sm:text-5xl md:text-6xl;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+  
+  h4 {
+    @apply text-xl md:text-2xl;
+  }
+  
+  /* Focus styles for accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2;
+  }
+}
+
+/**
+ * Component classes
+ * Reusable component styles
+ */
+@layer components {
+  /* Layout components */
+  .container-custom {
+    @apply container px-4 md:px-8 max-w-screen-xl mx-auto;
+  }
+  
+  .section {
+    @apply py-16 md:py-24;
+  }
+  
+  /* Text effects */
+  .heading-gradient {
+    @apply bg-gradient-to-r from-crimson to-crimson/70 bg-clip-text text-transparent;
+  }
+  
+  /* Card effects */
+  .card-gradient {
+    @apply relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-br before:from-crimson/10 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300;
+  }
+  
+  /* Link styles */
+  .link-underline {
+    @apply relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-crimson after:transition-all after:duration-300 hover:after:w-full;
+  }
+  
+  /* Button animations */
+  .btn-pulse {
+    @apply relative overflow-hidden;
+  }
+  
+  .btn-pulse::after {
+    @apply absolute inset-0 -z-10 transform scale-x-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 transition-all duration-1000 ease-in-out content-[''];
+  }
+  
+  .btn-pulse:hover::after {
+    @apply scale-x-150 opacity-100;
+  }
+}
+
+/**
+ * Utility classes
+ * Single-purpose utility styles
+ */
+@layer utilities {
+  /* Hide scrollbars while maintaining functionality */
+  .scroll-hidden::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scroll-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  /* Gradient text utilities */
+  .text-gradient-primary {
+    @apply bg-gradient-to-r from-crimson via-crimson/90 to-crimson/80 bg-clip-text text-transparent;
+  }
+  
+  /* Glass effect for card backgrounds */
+  .bg-glass {
+    @apply bg-background/80 backdrop-blur-md border border-border/50;
+  }
+  
+  /* Responsive grid utilities */
+  .grid-auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
