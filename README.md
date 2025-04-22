@@ -100,6 +100,22 @@ The `dist` folder can be deployed to any static hosting provider:
 - Shadcn/ui components
 - EmailJS
 
+## 🔄 GitHub Setup
+
+To upload this project to your GitHub repository:
+
+```bash
+# Create a new GitHub repository at https://github.com/new
+
+# Link your local repository to GitHub (replace with your repository URL)
+git remote add origin https://github.com/yourusername/portfolio.git
+
+# Push your code to GitHub
+git push -u origin main
+```
+
+Make sure to set up GitHub Pages or your preferred hosting solution for deployment.
+
 ## 📄 License
 
 This project is licensed under the MIT License.
