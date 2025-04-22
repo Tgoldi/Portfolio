@@ -37,7 +37,13 @@ export default defineConfig(({ mode }) => ({
             'class-variance-authority'
           ]
         }
-      }
+      },
+      // Handle platform-specific dependencies by marking them as external
+      external: [
+        '@rollup/rollup-linux-x64-gnu',
+        '@rollup/rollup-darwin-x64',
+        '@rollup/rollup-win32-x64-msvc'
+      ]
     },
     // Enable source map for production builds
     sourcemap: false,
