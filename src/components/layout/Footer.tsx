@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { memo } from "react";
-import { Linkedin, Github, Mail } from "lucide-react";
+import { Linkedin, Github, Mail, Accessibility } from "lucide-react";
 import { motion } from "framer-motion";
 
 /**
@@ -45,8 +45,60 @@ const Footer = () => {
   return (
     <footer className="border-t py-8 md:py-10">
       <div className="container-custom">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex flex-col md:flex-row items-center gap-4 text-sm text-muted-foreground">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div>
+            <h3 className="text-lg font-medium mb-3">About</h3>
+            <p className="text-sm text-muted-foreground">
+              Portfolio of Tomer Goldstein, a full-stack developer specializing in modern web technologies.
+            </p>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-medium mb-3">Links</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/projects" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Projects
+                </Link>
+              </li>
+              <li>
+                <Link to="/experience" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Experience
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link to="/accessibility" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <span className="flex items-center gap-1">
+                    <Accessibility className="h-3 w-3" />
+                    Accessibility
+                  </span>
+                </Link>
+              </li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-medium mb-3">Connect</h3>
+            <div className="flex flex-col gap-2">
+              {socialLinks.map((link) => (
+                <FooterSocialLink key={link.label} link={link} />
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-4 border-t border-border">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Link 
               to="/" 
               className="font-medium hover:text-crimson transition-colors"
@@ -56,12 +108,6 @@ const Footer = () => {
             </Link>
             <span className="hidden md:inline-block" aria-hidden="true">•</span>
             <span>&copy; {currentYear} Tomer Goldstein. All rights reserved.</span>
-          </div>
-          
-          <div className="flex items-center gap-6">
-            {socialLinks.map((link) => (
-              <FooterSocialLink key={link.label} link={link} />
-            ))}
           </div>
         </div>
       </div>
@@ -87,7 +133,7 @@ const FooterSocialLink = ({ link }: FooterSocialLinkProps) => (
     whileTap={{ scale: 0.95 }}
   >
     {link.icon}
-    <span className="hidden sm:inline-block">{link.label}</span>
+    <span>{link.label}</span>
   </motion.a>
 );
 

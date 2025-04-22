@@ -71,7 +71,7 @@ const RootLayout = () => {
     <div className="min-h-screen flex flex-col">
       <Header scrolled={scrolled} />
       
-      <main id="main-content" className="flex-1 relative">
+      <main className="flex-1 relative">
         {/* Animated background container */}
         <motion.div
           variants={backgroundVariants}

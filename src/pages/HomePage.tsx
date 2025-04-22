@@ -43,12 +43,13 @@ import { useEffect, useRef, useState, useCallback, memo, useMemo } from "react";
 import { useInView } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ArrowRightIcon, ArrowUpIcon } from "lucide-react";
+import { ArrowRightIcon, ArrowUpIcon, PauseIcon, PlayIcon } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "lucide-react";
 import { Link as RouterLink } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { projectsData } from "@/data/projectsData";
 import { SEO } from "@/components/SEO";
+import { useAnimations } from "@/contexts/AnimationContext";
 
 // ===== Animation Variants =====
 /**
@@ -294,8 +295,16 @@ const TypedText: React.FC<TypedTextProps> = memo(({
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
   const timeout = useRef<NodeJS.Timeout | null>(null);
+  const { animationsEnabled } = useAnimations();
   
   useEffect(() => {
+    // If animations are disabled, just show the full text
+    if (speed === 0 || !animationsEnabled) {
+      setDisplayedText(text);
+      setIsTyping(false);
+      return;
+    }
+    
     let timeoutId: NodeJS.Timeout;
     
     const startTyping = async () => {
@@ -311,10 +320,10 @@ const TypedText: React.FC<TypedTextProps> = memo(({
             const next = text.slice(0, prev.length + 1);
             timeout.current = setTimeout(type, speed * 1000 + Math.random() * 100);
             return next;
-        } else {
-          setIsTyping(false);
+          } else {
+            setIsTyping(false);
             return prev;
-        }
+          }
         });
       };
       
@@ -335,7 +344,10 @@ const TypedText: React.FC<TypedTextProps> = memo(({
   return (
     <span className={className}>
       {displayedText}
-      {isTyping && <span className="inline-block w-1 h-5 ml-1 bg-crimson animate-pulse">|</span>}
+      {isTyping && <span className={cn(
+        "inline-block w-1 h-5 ml-1 bg-crimson",
+        animationsEnabled ? "animate-pulse" : ""
+      )}>|</span>}
     </span>
   );
 });
@@ -389,7 +401,6 @@ const SkillCard: React.FC<SkillCardProps> = memo(({
         sizeClasses[size],
         glow && "hover:shadow-crimson/20"
       )}
-      role="listitem"
     >
       <img 
         src={skill.icon} 
@@ -541,6 +552,9 @@ TechPill.displayName = 'TechPill';
 const HomePage: React.FC = () => {
   const isMobile = useIsMobile();
   
+  // Get animation state from context
+  const { animationsEnabled, toggleAnimations } = useAnimations();
+  
   // Refs for scroll animations
   const aboutRef = useRef<HTMLElement>(null);
   const techStackRef = useRef<HTMLElement>(null);
@@ -674,9 +688,9 @@ const HomePage: React.FC = () => {
       />
       
       {/* Scroll Progress Indicator */}
-            <motion.div
+      <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-crimson via-blue-500 to-crimson z-50"
-        style={{ scaleX, transformOrigin: "0%" }}
+        style={{ scaleX: animationsEnabled ? scaleX : 1, transformOrigin: "0%" }}
       />
       
       {/* Navigation Dots */}
@@ -763,18 +777,18 @@ const HomePage: React.FC = () => {
                 filter: 'blur(40px)',
                 opacity: 0.5,
               }}
-              animate={{
+              animate={animationsEnabled ? {
                 x: [0, Math.random() * 40 - 20],
                 y: [0, Math.random() * 40 - 20],
                 opacity: [0.4, 0.6, 0.4],
-              }}
-              transition={{
+              } : { x: 0, y: 0, opacity: 0.4 }}
+              transition={animationsEnabled ? {
                 duration: Math.random() * 3 + 5,
                 repeat: Infinity,
                 repeatType: "reverse",
                 ease: "easeInOut",
                 delay: i * 0.3,
-              }}
+              } : { duration: 0 }}
             />
           ))}
           
@@ -789,17 +803,17 @@ const HomePage: React.FC = () => {
                   top: `${Math.random() * 100}%`,
                 }}
                 initial={{ opacity: 0, y: 0, scale: 0.8 }}
-                animate={{ 
+                animate={animationsEnabled ? { 
                   opacity: [0, 0.8, 0],
                   y: [-20, -120 - Math.random() * 50],
                   scale: [0.8, 1.2, 0.9],
-                }}
-              transition={{ 
+                } : { opacity: 0 }}
+                transition={animationsEnabled ? { 
                   duration: 4 + Math.random() * 3,
                   repeat: Infinity,
                   delay: Math.random() * 8,
                   ease: "easeOut",
-                }}
+                } : { duration: 0 }}
               >
                 {[
                   '{ }', '</>', '()', '[]', '&&', '||', '=>', '++', '==', '!=', 
@@ -821,15 +835,15 @@ const HomePage: React.FC = () => {
               >
                 <div className="flex items-start mb-4">
                   <motion.span
-                    animate={{ opacity: [1, 0.5, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
+                    animate={animationsEnabled ? { opacity: [1, 0.5, 1] } : { opacity: 1 }}
+                    transition={{ duration: 2, repeat: animationsEnabled ? Infinity : 0 }}
                     className="text-crimson mr-2"
                   >
                     $
-                      </motion.span>
+                  </motion.span>
                   <TypedText 
                     text="cat developer.json" 
-                    speed={0.04} 
+                    speed={animationsEnabled ? 0.04 : 0}
                     className="text-sm"
                   />
                 </div>
@@ -844,7 +858,7 @@ const HomePage: React.FC = () => {
                     <TypedText 
                       text="{" 
                       startDelay={2.5}
-                      speed={0.05} 
+                      speed={animationsEnabled ? 0.05 : 0}
                       className="text-crimson block"
                     />
                     
@@ -852,13 +866,13 @@ const HomePage: React.FC = () => {
                       <TypedText 
                         text='"name": ' 
                         startDelay={2.8}
-                        speed={0.05} 
+                        speed={animationsEnabled ? 0.05 : 0}
                         className="text-foreground/70"
                       />
                       <TypedText 
                         text='"Tomer Goldstein",' 
                         startDelay={3.4}
-                        speed={0.05} 
+                        speed={animationsEnabled ? 0.05 : 0}
                         className="text-crimson"
                       />
                     </div>
@@ -867,13 +881,13 @@ const HomePage: React.FC = () => {
                       <TypedText 
                         text='"title": ' 
                         startDelay={4.0}
-                        speed={0.05} 
+                        speed={animationsEnabled ? 0.05 : 0}
                         className="text-foreground/70"
                       />
                       <TypedText 
                         text='"Full-Stack Developer",' 
                         startDelay={4.6}
-                        speed={0.05} 
+                        speed={animationsEnabled ? 0.05 : 0}
                         className="text-crimson"
                       />
                     </div>
@@ -882,14 +896,14 @@ const HomePage: React.FC = () => {
                       <TypedText 
                         text='"passions": ' 
                         startDelay={5.3}
-                        speed={0.05} 
+                        speed={animationsEnabled ? 0.05 : 0}
                         className="text-foreground/70"
                       />
                       <span className="block sm:inline">
                         <TypedText 
                           text='["Building responsive apps",' 
                           startDelay={5.9}
-                          speed={0.04} 
+                          speed={animationsEnabled ? 0.04 : 0}
                           className="text-crimson"
                         />
                       </span>
@@ -897,7 +911,7 @@ const HomePage: React.FC = () => {
                         <TypedText 
                           text='"Modern tech", "Clean code"]' 
                           startDelay={6.8}
-                          speed={0.04} 
+                          speed={animationsEnabled ? 0.04 : 0}
                           className="text-crimson"
                         />
                       </span>
@@ -906,7 +920,7 @@ const HomePage: React.FC = () => {
                     <TypedText 
                       text="}" 
                       startDelay={7.8}
-                      speed={0.05} 
+                      speed={animationsEnabled ? 0.05 : 0}
                       className="text-crimson block"
                     />
                   </div>
@@ -1002,10 +1016,10 @@ const HomePage: React.FC = () => {
                 {/* Spinning blurry border */}
             <motion.div
                   className="absolute -inset-2 rounded-full bg-gradient-to-r from-crimson via-blue-500/50 to-crimson blur-md"
-                  animate={{ rotate: 360 }}
+                  animate={animationsEnabled ? { rotate: 360 } : { rotate: 0 }}
                   transition={{ 
                     duration: 10, 
-                    repeat: Infinity, 
+                    repeat: animationsEnabled ? Infinity : 0, 
                     ease: "linear"
                   }}
                 />
@@ -1013,10 +1027,10 @@ const HomePage: React.FC = () => {
                 {/* Second spinning border layer for depth */}
                 <motion.div
                   className="absolute -inset-4 rounded-full bg-gradient-to-r from-crimson/40 via-transparent to-crimson/40 blur-lg opacity-60"
-                  animate={{ rotate: -360 }}
+                  animate={animationsEnabled ? { rotate: -360 } : { rotate: 0 }}
                   transition={{ 
                     duration: 15, 
-                    repeat: Infinity, 
+                    repeat: animationsEnabled ? Infinity : 0, 
                     ease: "linear"
                   }}
                 />
@@ -1024,7 +1038,7 @@ const HomePage: React.FC = () => {
                 {/* Profile image */}
                 <motion.div 
                   className="relative w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-card shadow-xl z-10"
-                  animate={{
+                  animate={animationsEnabled ? {
                     y: [-10, 10],
                     transition: {
                       y: {
@@ -1034,7 +1048,7 @@ const HomePage: React.FC = () => {
                         ease: "easeInOut"
                       }
                     }
-                  }}
+                  } : { y: 0 }}
                 >
                   <img 
                     src="/images/profile.jpg" 
@@ -1047,15 +1061,12 @@ const HomePage: React.FC = () => {
                   
                   {/* Animated gradient overlay */}
                   <motion.div 
-                    className="absolute inset-0 bg-gradient-to-tr from-crimson/30 to-transparent mix-blend-overlay"
-                    animate={{ 
-                      opacity: [0.3, 0.6, 0.3]
-                    }}
-                    transition={{ 
-                      duration: 5, 
-                      repeat: Infinity, 
-                      repeatType: "reverse" 
-                    }}
+                    className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"
+                    initial={{ opacity: 0.5 }}
+                    whileHover={animationsEnabled ? { 
+                      opacity: 0.3,
+                      transition: { duration: 0.7 }
+                    } : { opacity: 0.5 }}
                   />
             </motion.div>
               </div>
@@ -1067,32 +1078,32 @@ const HomePage: React.FC = () => {
       {/* About Section */}
       <section id="about" ref={aboutRef} className="section py-28 relative">
         {/* Animated background elements */}
-          <motion.div
+        <motion.div
           className="absolute top-20 right-10 w-72 h-72 rounded-full bg-crimson/5 blur-3xl"
-          animate={{
+          animate={animationsEnabled ? {
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.2, 0.3],
             rotate: 15,
-          }}
-          transition={{
+          } : { scale: 1, opacity: 0.3, rotate: 0 }}
+          transition={animationsEnabled ? {
             duration: 12,
             repeat: Infinity,
             repeatType: "reverse",
-          }}
+          } : { duration: 0 }}
         />
         <motion.div 
           className="absolute bottom-20 left-10 w-56 h-56 rounded-full bg-blue-500/5 blur-3xl"
-          animate={{
+          animate={animationsEnabled ? {
             scale: [1, 1.3, 1],
             opacity: [0.2, 0.1, 0.2],
             rotate: 45,
-          }}
-          transition={{
+          } : { scale: 1, opacity: 0.2, rotate: 0 }}
+          transition={animationsEnabled ? {
             duration: 15,
             repeat: Infinity,
             repeatType: "reverse",
             delay: 2,
-          }}
+          } : { duration: 0 }}
         />
         
         <div className="container-custom relative z-10">
@@ -1114,7 +1125,11 @@ const HomePage: React.FC = () => {
                   className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-crimson via-crimson/80 to-crimson/20"
                   initial={{ scaleX: 0, originX: 0 }}
                   animate={{ scaleX: aboutInView ? 1 : 0 }}
-                  transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
+                  transition={{ 
+                    delay: animationsEnabled ? 0.3 : 0, 
+                    duration: animationsEnabled ? 0.8 : 0, 
+                    ease: "easeOut" 
+                  }}
                 />
               </h2>
               <motion.p 
@@ -1179,7 +1194,7 @@ const HomePage: React.FC = () => {
                 <motion.div 
                   className="absolute -right-20 -bottom-20 w-64 h-64 rounded-full bg-crimson/5 filter blur-3xl group-hover:opacity-70"
                   initial={{ opacity: 0.3 }}
-                  whileHover={{ opacity: 0.7 }}
+                  whileHover={animationsEnabled ? { opacity: 0.7 } : { opacity: 0.3 }}
                   transition={{ duration: 1 }}
                 />
                 
@@ -1192,14 +1207,14 @@ const HomePage: React.FC = () => {
                   >
                     <motion.span
                       animate={{ opacity: [1, 0.5, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
+                      transition={{ duration: 2, repeat: animationsEnabled ? Infinity : 0 }}
                       className="text-crimson mr-2"
                     >
                       $
                     </motion.span>
                     <TypedText 
                       text="cat profile.json" 
-                      speed={0.05} 
+                      speed={animationsEnabled ? 0.05 : 0}
                       className="text-sm"
                     />
             </motion.div>
@@ -1249,14 +1264,14 @@ const HomePage: React.FC = () => {
                     >
                       <motion.span
                         animate={{ opacity: [1, 0.5, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
+                        transition={{ duration: 2, repeat: animationsEnabled ? Infinity : 0 }}
                         className="text-crimson mr-2"
                       >
                         $
                       </motion.span>
                       <TypedText 
                         text="ls skills/" 
-                        speed={0.05} 
+                        speed={animationsEnabled ? 0.05 : 0}
                         startDelay={11.5}
                         className="text-sm"
                 />
@@ -1301,12 +1316,12 @@ const HomePage: React.FC = () => {
         <div className="absolute inset-0 flex items-center justify-center opacity-60 z-0">
           <motion.div 
             className="w-full max-w-4xl h-64 rounded-full bg-gradient-to-tr from-crimson/10 via-transparent to-blue-500/10 blur-3xl transform scale-150"
-            animate={{
+            animate={animationsEnabled ? {
               rotate: 360,
               scale: [1.5, 1.7, 1.5],
               opacity: [0.6, 0.7, 0.6]
-            }}
-            transition={{
+            } : { rotate: 0, scale: 1.5, opacity: 0.6 }}
+            transition={animationsEnabled ? {
               rotate: {
                 duration: 40,
                 repeat: Infinity,
@@ -1324,7 +1339,7 @@ const HomePage: React.FC = () => {
                 repeatType: "reverse",
                 ease: "easeInOut"
               }
-            }}
+            } : { duration: 0 }}
           />
         </div>
         
@@ -1344,7 +1359,7 @@ const HomePage: React.FC = () => {
               <TypedText 
                 text="I CONSTANTLY TRY TO IMPROVE"
                 startDelay={0.3}
-                speed={0.02}
+                speed={animationsEnabled ? 0.02 : 0}
                 className="inline-block"
               />
             </motion.p>
@@ -1375,15 +1390,27 @@ const HomePage: React.FC = () => {
               <h3 className="text-xl font-semibold mb-4 text-center">
                 <span className="text-crimson">Front-End</span> Technologies
               </h3>
-              <div 
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6" 
-                role="list"
-                aria-label="Frontend skills"
-              >
-                {techStackSkills.frontend.map((skill, index) => (
-                  <SkillCard key={`frontend-${index}`} skill={skill} />
+              <div className="flex flex-wrap justify-center gap-4">
+                {[
+                  { name: "React", icon: "/tech/react.svg" },
+                  { name: "JavaScript", icon: "/tech/javascript.svg" },
+                  { name: "HTML", icon: "/tech/html.svg" },
+                  { name: "CSS", icon: "/tech/css.svg" },
+                  { name: "Material-UI", icon: "/tech/material-ui.svg" },
+                  { name: "TypeScript", icon: "/tech/typescript.svg" },
+                  { name: "Tailwind CSS", icon: "/tech/tailwind.svg" },
+                  { name: "Bootstrap", icon: "/tech/bootstrap.svg" },
+                  { name: "Shadcn", icon: "/tech/shadcn.svg" },
+                  { name: "Responsive Design", icon: "/tech/responsive.svg" },
+                ].map((tech, idx) => (
+                  <TechPill 
+                    key={tech.name} 
+                    tech={tech.name} 
+                    custom={idx} 
+                    variants={techIconVariants} 
+                  />
                 ))}
-              </div>
+                    </div>
             </div>
             
             {/* BACKEND SECTION */}
@@ -1455,7 +1482,7 @@ const HomePage: React.FC = () => {
               <TypedText 
                 text="Some of my recent work showcasing my skills and expertise"
                 startDelay={0.3}
-                speed={0.02}
+                speed={animationsEnabled ? 0.02 : 0}
                 className="inline-block"
               />
             </p>
@@ -1486,14 +1513,14 @@ const HomePage: React.FC = () => {
               <div className="font-mono text-muted-foreground mb-3 flex items-start">
                 <motion.span
                   animate={{ opacity: [1, 0.5, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
+                  transition={{ duration: 2, repeat: animationsEnabled ? Infinity : 0 }}
                   className="text-crimson mr-2"
                 >
                   $
                 </motion.span>
                 <TypedText 
                   text="find . -name 'projects' -type d | xargs ls -la"
-                  speed={0.03} 
+                  speed={animationsEnabled ? 0.03 : 0}
                   startDelay={1.2}
                   className="text-sm"
                 />
@@ -1539,10 +1566,10 @@ const HomePage: React.FC = () => {
                     <motion.div 
                       className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"
                       initial={{ opacity: 0.5 }}
-                      whileHover={{ 
+                      whileHover={animationsEnabled ? { 
                         opacity: 0.3,
                         transition: { duration: 0.7 }
-                      }}
+                      } : { opacity: 0.5 }}
                     />
                     
                     {/* Terminal mini-header */}
@@ -1582,7 +1609,7 @@ const HomePage: React.FC = () => {
                           <motion.span 
                             className="absolute inset-0 bg-gradient-to-r from-crimson/20 to-transparent"
                             initial={{ x: '-100%' }}
-                            whileHover={{ x: '100%' }}
+                            whileHover={animationsEnabled ? { x: '100%' } : { x: '-100%' }}
                             transition={{ duration: 0.5 }}
                           />
                       </motion.span>
@@ -1595,9 +1622,9 @@ const HomePage: React.FC = () => {
                             <span className="text-crimson">git</span> clone
                             <ArrowRightIcon className="w-3 h-3 transition-transform group-hover/button:translate-x-1" />
                             <motion.span 
-                              className="absolute inset-0 bg-crimson/10"
+                              className="absolute inset-0 bg-crimson/10 pointer-events-none"
                               initial={{ scale: 0, opacity: 0 }}
-                              whileHover={{ scale: 1, opacity: 1 }}
+                              whileHover={animationsEnabled ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
                               transition={{ duration: 0.3 }}
                             />
                           </a>

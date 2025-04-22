@@ -2,17 +2,10 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
 import { Button } from "../ui/button";
 import { ThemeToggle } from "../theme-toggle";
-import { Menu, X, Github } from "lucide-react";
+import { Menu, X, Github, Accessibility } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { useAccessibility } from "@/App";
-import { Toggle } from "@/components/ui/toggle";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { 
-  Settings, 
-  EyeIcon, 
-  Activity 
-} from "lucide-react";
+import AccessibilityMenu from '../AccessibilityMenu';
 
 /**
  * Header component props
@@ -47,6 +40,7 @@ const Header = ({ scrolled }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const location = useLocation();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const [accessibilityMenuOpen, setAccessibilityMenuOpen] = useState(false);
 
   // Close mobile menu handler
   const closeMobileMenu = useCallback(() => {
@@ -176,278 +170,235 @@ const Header = ({ scrolled }: HeaderProps) => {
     }
   };
 
-  // Skip to content link for keyboard users
-  const SkipToContent = () => (
-    <a 
-      href="#main-content" 
-      className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:p-4 focus:bg-background focus:text-foreground focus:outline-none focus:ring-2 focus:ring-crimson"
-    >
-      Skip to content
-    </a>
-  );
-
-  // Add Accessibility Menu component
-  const AccessibilityMenu = () => {
-    const { 
-      reducedMotion, 
-      toggleReducedMotion, 
-      highContrast, 
-      toggleHighContrast 
-    } = useAccessibility();
-
-    return (
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            aria-label="Accessibility Options"
-            className="rounded-full mr-2"
-          >
-            <Settings className="h-4 w-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-56 p-4">
-          <div className="space-y-3">
-            <h3 className="font-medium text-sm">Accessibility Settings</h3>
-            
-            <div className="flex items-center justify-between">
-              <label 
-                htmlFor="high-contrast" 
-                className="text-sm flex items-center gap-2"
-              >
-                <EyeIcon className="h-4 w-4" />
-                High Contrast
-              </label>
-              <Toggle 
-                id="high-contrast"
-                aria-label="Toggle high contrast mode"
-                pressed={highContrast}
-                onPressedChange={toggleHighContrast}
-              />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <label 
-                htmlFor="reduced-motion" 
-                className="text-sm flex items-center gap-2"
-              >
-                <Activity className="h-4 w-4" />
-                Reduced Motion
-              </label>
-              <Toggle 
-                id="reduced-motion"
-                aria-label="Toggle reduced motion mode"
-                pressed={reducedMotion}
-                onPressedChange={toggleReducedMotion}
-              />
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
-    );
-  };
-
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 w-full transition-all duration-300",
-        scrolled
-          ? "bg-background/80 backdrop-blur-md border-b shadow-sm"
-          : "bg-transparent"
-      )}
-    >
-      <SkipToContent />
-      <div className="container-custom flex h-16 items-center justify-between">
-        {/* Logo */}
-        <motion.div 
-          className="flex items-center gap-2"
-          variants={logoVariants}
-          initial="initial"
-          animate="animate"
-        >
-          <Link 
-            to="/" 
-            className="text-2xl font-bold tracking-tight relative"
-            onClick={closeMobileMenu}
-            aria-label="Tomer - Homepage"
+    <>
+      <header
+        className={cn(
+          "sticky top-0 z-40 w-full transition-all duration-300",
+          scrolled
+            ? "bg-background/80 backdrop-blur-md border-b shadow-sm"
+            : "bg-transparent"
+        )}
+      >
+        <div className="container-custom flex h-16 items-center justify-between">
+          {/* Logo */}
+          <motion.div 
+            className="flex items-center gap-2"
+            variants={logoVariants}
+            initial="initial"
+            animate="animate"
           >
-            <span className="text-crimson">T</span>omer
-            <motion.span 
-              className="text-crimson"
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [1, 0.8, 1],
-                transition: { 
-                  duration: 2, 
-                  repeat: Infinity,
-                  repeatType: "reverse" 
-                }
-              }}
-              aria-hidden="true"
+            <Link 
+              to="/" 
+              className="text-2xl font-bold tracking-tight relative"
+              onClick={closeMobileMenu}
+              aria-label="Tomer - Homepage"
             >
-              .
-            </motion.span>
-          </Link>
-        </motion.div>
+              <span className="text-crimson">T</span>omer
+              <motion.span 
+                className="text-crimson"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [1, 0.8, 1],
+                  transition: { 
+                    duration: 2, 
+                    repeat: Infinity,
+                    repeatType: "reverse" 
+                  }
+                }}
+                aria-hidden="true"
+              >
+                .
+              </motion.span>
+            </Link>
+          </motion.div>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
-          {NAV_ITEMS.map((item, i) => (
-            <DesktopNavItem key={item.path} item={item} index={i} />
-          ))}
-          
-          <motion.div
-            custom={NAV_ITEMS.length}
-            initial="hidden"
-            animate="visible"
-            variants={navItemVariants}
-          >
-            <div className="flex items-center gap-2">
-              <AccessibilityMenu />
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
+            {NAV_ITEMS.map((item, i) => (
+              <DesktopNavItem key={item.path} item={item} index={i} />
+            ))}
+            
+            <motion.div
+              custom={NAV_ITEMS.length}
+              initial="hidden"
+              animate="visible"
+              variants={navItemVariants}
+            >
               <ThemeToggle />
-            </div>
-          </motion.div>
-          
-          <motion.div
-            custom={NAV_ITEMS.length + 1}
-            initial="hidden"
-            animate="visible"
-            variants={navItemVariants}
-            whileHover={{ scale: 1.05 }}
-          >
-            <Button 
-              asChild
-              variant="default" 
-              size="sm"
-              className="bg-crimson hover:bg-crimson/90"
-            >
-              <a
-                href="https://github.com/Tgoldi"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-                aria-label="GitHub profile"
-              >
-                <Github className="w-4 h-4" />
-                GitHub
-              </a>
-            </Button>
-          </motion.div>
-        </nav>
-
-        {/* Mobile menu button */}
-        <div className="flex md:hidden items-center gap-4">
-          <ThemeToggle />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleMobileMenu}
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-menu"
-          >
-            <Menu className="h-6 w-6" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Mobile Navigation */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            id="mobile-menu"
-            ref={mobileMenuRef}
-            className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md md:hidden pt-16"
-            variants={mobileMenuVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            aria-label="Mobile navigation"
-          >
-            {/* Close button at the top right */}
-            <motion.div 
-              className="absolute top-4 right-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={closeMobileMenu}
-                aria-label="Close menu"
-                className="text-foreground hover:bg-background/20"
-              >
-                <X className="h-6 w-6" />
-              </Button>
             </motion.div>
             
-            <nav className="container-custom flex flex-col items-center gap-8 py-8">
-              {/* Add mobile title/logo */}
-              <motion.div
-                variants={mobileNavItemVariants}
-                className="mb-8"
+            <motion.div
+              custom={NAV_ITEMS.length + 1}
+              initial="hidden"
+              animate="visible"
+              variants={navItemVariants}
+              whileHover={{ scale: 1.05 }}
+            >
+              <Button 
+                asChild
+                variant="default" 
+                size="sm"
+                className="bg-crimson hover:bg-crimson/90"
               >
-                <Link 
-                  to="/" 
-                  className="text-3xl font-bold tracking-tight relative"
+                <a
+                  href="https://github.com/Tgoldi"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                  aria-label="GitHub profile"
+                >
+                  <Github className="w-4 h-4" />
+                  GitHub
+                </a>
+              </Button>
+            </motion.div>
+          </nav>
+
+          {/* Mobile menu button */}
+          <div className="flex md:hidden items-center gap-4">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleMobileMenu}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              id="mobile-menu"
+              ref={mobileMenuRef}
+              className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md md:hidden pt-16"
+              variants={mobileMenuVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              aria-label="Mobile navigation"
+            >
+              {/* Close button at the top right */}
+              <motion.div 
+                className="absolute top-4 right-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={closeMobileMenu}
-                  aria-label="Tomer - Homepage"
+                  aria-label="Close menu"
+                  className="text-foreground hover:bg-background/20"
                 >
-                  <span className="text-crimson">T</span>omer
-                  <motion.span 
-                    className="text-crimson"
-                    animate={{
-                      scale: [1, 1.2, 1],
-                      opacity: [1, 0.8, 1],
-                      transition: { 
-                        duration: 2, 
-                        repeat: Infinity,
-                        repeatType: "reverse" 
-                      }
-                    }}
-                    aria-hidden="true"
-                  >
-                    .
-                  </motion.span>
-                </Link>
-              </motion.div>
-              
-              {NAV_ITEMS.map((item) => (
-                <MobileNavItem 
-                  key={item.path} 
-                  item={item} 
-                  onClose={closeMobileMenu} 
-                />
-              ))}
-              
-              <motion.div
-                variants={mobileNavItemVariants}
-                className="mt-4"
-              >
-                <Button 
-                  asChild
-                  size="lg"
-                  className="w-full bg-crimson hover:bg-crimson/90 gap-2"
-                >
-                  <a
-                    href="https://github.com/Tgoldi"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="GitHub profile"
-                    onClick={closeMobileMenu}
-                  >
-                    <Github className="w-5 h-5" />
-                    GitHub
-                  </a>
+                  <X className="h-6 w-6" />
                 </Button>
               </motion.div>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </header>
+              
+              <nav className="container-custom flex flex-col items-center gap-8 py-8">
+                {/* Add mobile title/logo */}
+                <motion.div
+                  variants={mobileNavItemVariants}
+                  className="mb-8"
+                >
+                  <Link 
+                    to="/" 
+                    className="text-3xl font-bold tracking-tight relative"
+                    onClick={closeMobileMenu}
+                    aria-label="Tomer - Homepage"
+                  >
+                    <span className="text-crimson">T</span>omer
+                    <motion.span 
+                      className="text-crimson"
+                      animate={{
+                        scale: [1, 1.2, 1],
+                        opacity: [1, 0.8, 1],
+                        transition: { 
+                          duration: 2, 
+                          repeat: Infinity,
+                          repeatType: "reverse" 
+                        }
+                      }}
+                      aria-hidden="true"
+                    >
+                      .
+                    </motion.span>
+                  </Link>
+                </motion.div>
+                
+                {NAV_ITEMS.map((item) => (
+                  <MobileNavItem 
+                    key={item.path} 
+                    item={item} 
+                    onClose={closeMobileMenu} 
+                  />
+                ))}
+                
+                <motion.div
+                  variants={mobileNavItemVariants}
+                  className="mt-4"
+                >
+                  <Button 
+                    asChild
+                    size="lg"
+                    className="w-full bg-crimson hover:bg-crimson/90 gap-2"
+                  >
+                    <a
+                      href="https://github.com/Tgoldi"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="GitHub profile"
+                      onClick={closeMobileMenu}
+                    >
+                      <Github className="w-5 h-5" />
+                      GitHub
+                    </a>
+                  </Button>
+                </motion.div>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      {/* Floating Accessibility Button - Desktop (bottom left) */}
+      <motion.button
+        className="fixed bottom-8 left-8 z-50 p-3 bg-card shadow-lg border border-border rounded-full hidden md:flex items-center justify-center hover:bg-accent transition-all duration-300"
+        onClick={() => setAccessibilityMenuOpen(true)}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ scale: 1.1 }}
+        aria-label="Accessibility options"
+        title="Accessibility options"
+      >
+        <Accessibility className="w-5 h-5" />
+      </motion.button>
+
+      {/* Floating Accessibility Button - Mobile (bottom right) */}
+      <motion.button
+        className="fixed bottom-8 right-8 z-50 p-3 bg-card shadow-lg border border-border rounded-full md:hidden flex items-center justify-center hover:bg-accent transition-all duration-300"
+        onClick={() => setAccessibilityMenuOpen(true)}
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ scale: 1.1 }}
+        aria-label="Accessibility options"
+        title="Accessibility options"
+      >
+        <Accessibility className="w-5 h-5" />
+      </motion.button>
+
+      <AccessibilityMenu 
+        isOpen={accessibilityMenuOpen} 
+        onClose={() => setAccessibilityMenuOpen(false)} 
+      />
+    </>
   );
 };
 
